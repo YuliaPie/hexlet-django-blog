@@ -1,24 +1,39 @@
-from django.http import Http404
-from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
-from .models import Article
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views import View
+
+from hexlet_django_blog.articles.forms import ArticleForm
+from hexlet_django_blog.articles.models import Article
 
 
-@require_http_methods(['GET', 'POST'])
-def index(request):
-    if request.method == 'POST':
-        data = {
-            'name': request.POST['name'],
-            'body': request.POST['body']
-        }
-        Article.objects.create(**data).save()
-    articles = Article.objects.all()
-    return render(request, 'articles/index.html', context={'articles': articles})
+class IndexView(View):
+
+    def get(self, request, *args, **kwargs):
+        articles = Article.objects.all()[:15]
+        return render(request, 'articles/index.html', context={
+            'articles': articles,
+        })
 
 
-@require_http_methods(['GET'])
-def article_view(request, id):
-    article = Article.objects.filter(pk=id).first()
-    if not article:
-        raise Http404()
-    return render(request, 'articles/article.html', context={'article': article})
+class ArticleView(View):
+
+    def get(self, request, *args, **kwargs):
+        article = get_object_or_404(Article, id=kwargs['id'])
+        return render(request, 'articles/article.html', context={
+            'article': article,
+        })
+
+
+class ArticleFormCreateView(View):
+
+    def get(self, request, *args, **kwargs):
+        form = ArticleForm()
+        return render(request, 'articles/create.html', {'form': form})
+
+
+    def post(self, request, *args, **kwargs):
+        form = ArticleForm(request.POST)
+        if form.is_valid(): # Если данные корректные, то сохраняем данные формы
+            form.save()
+            return redirect('index') # Редирект на указанный маршрут
+        # Если данные некорректные, то возвращаем человека обратно на страницу с заполненной формой
+        return render(request, 'articles/create.html', {'form': form})
