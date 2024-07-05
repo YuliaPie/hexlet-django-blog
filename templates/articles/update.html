@@ -8,19 +8,20 @@
 </ul>
 {% endif %}
 {% if form.errors %}
-<div>
-    <ul>
-    {% for error in form.errors %}
-        <li><strong>{{ error|escape }}</strong></li>
-    {% endfor %}
-    </ul>
-</div>
+    <div>
+        <ul>
+        {% for error in form.errors %}
+            <li><strong>{{ error|escape }}</strong></li>
+        {% endfor %}
+        </ul>
+    </div>
 {% endif %}
-<form action="{% url 'articles:articles_create' %}" method="post">
+
+<form action="{% url 'articles:articles_update' id=article_id %}" method="post">
     {% csrf_token %}
     <table border="1">
     {{ form }}
     </table>
-    <input type="submit" value="Создать">
+    <input type="submit" value="Сохранить">
 </form>
 {% endblock %}

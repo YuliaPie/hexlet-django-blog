@@ -1,10 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
     <h1>Список статей</h1>
 <a href="{% url 'articles:articles_create' %}">Добавить статью</a>
     {% for article in articles %}
         <h2> <a href="{% url 'articles:article' article.id %}"> {{ article.name }}</a></h2>
-        <div>{{ article.body|slice:":200" }}</div>
+        <div>{{ article.body|slice:":200" }}<p> <a href="{% url 'articles:articles_update' article.id %}"> Редактировать </a></p></div>
+
     {% endfor %}
 {% endblock %}
